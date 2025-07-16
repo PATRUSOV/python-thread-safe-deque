@@ -4,6 +4,10 @@ from typing import Generic, TypeVar, Deque
 
 T = TypeVar("T")
 
+# TODO: Добавить:
+# +Таймеры
+# +Документацию
+
 
 class ThreadSafeDeque(Generic[T]):
     def __init__(self):
