@@ -1,6 +1,6 @@
 from collections import deque
 from threading import Lock, Event
-from typing import Generic, TypeVar, Deque
+from typing import Generic, TypeVar, Deque, TypeAlias
 
 T = TypeVar("T")
 
@@ -72,6 +72,6 @@ class ThreadSafeDeque(Generic[T]):
             return len(self._deque)
 
 
-TSDeque = ThreadSafeDeque
+TSDeque: TypeAlias = ThreadSafeDeque
 
 __all__ = ["TSDeque", "ThreadSafeDeque"]
