@@ -66,3 +66,8 @@ class ThreadSafeDeque(Generic[T]):
     def __len__(self) -> int:
         with self._mutex:
             return len(self._deque)
+
+
+TSDeque = ThreadSafeDeque
+
+__all__ = ["TSDeque", "ThreadSafeDeque"]
