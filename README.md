@@ -8,9 +8,9 @@ Supports blocking operations, task tracking, `join()` and `task_done()` methods.
 
 ## Installation / Установка
 
-Copy `tsdeque.py` to your project. No external dependencies required.
+Copy `thread_safe_deque.py` to your project. No external dependencies required.
 
-Скопируйте `tsdeque.py` в ваш проект. Внешние зависимости отсутствуют.
+Скопируйте `thread_safe_deque.py` в ваш проект. Внешние зависимости отсутствуют.
 
 ## Usage / Использование
 
