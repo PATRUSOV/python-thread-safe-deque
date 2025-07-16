@@ -7,6 +7,9 @@ T = TypeVar("T")
 # TODO: Добавить:
 # +Таймеры
 # +Документацию
+# +Тесты
+# +Поддержка maxlen как в queue.Queue()
+# +Поддержка остановочных механизмов
 
 
 class ThreadSafeDeque(Generic[T]):
