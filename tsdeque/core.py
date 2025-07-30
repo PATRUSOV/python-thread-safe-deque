@@ -1,48 +1,9 @@
 from collections import deque
-from threading import Lock, Event
+from threading import Lock
 from typing import Generic, TypeVar, Deque, Optional
-from time import perf_counter
 
-
-class Timer:
-    def __init__(self, period: float) -> None:
-        self._period = period
-        self._start = perf_counter()
-
-    def get_spend(self) -> float:
-        elapsed = perf_counter() - self._start
-        remainder = max(0, self._period - elapsed)
-        return remainder
-
-
-class Devent:
-    def __init__(self):
-        self._set_event = Event()
-        self._unset_event = Event()
-        self._mutex = Lock()
-        self.unset()
-
-    def is_set(self):
-        return self._set_event.is_set()
-
-    def set(self) -> None:
-        with self._mutex:
-            self._set_event.set()
-            self._unset_event.clear()
-
-    def unset(self) -> None:
-        with self._mutex:
-            self._set_event.clear()
-            self._unset_event.set()
-
-    def wait_set(self, timeout: Optional[float] = None) -> bool:
-        with self._mutex:
-            return self._set_event.wait(timeout)
-
-    def wait_unset(self, timeout: Optional[float] = None) -> bool:
-        with self._mutex:
-            return self._unset_event.wait(timeout)
-
+from tsdeque.devent import Devent
+from tsdeque.timer import Timer
 
 T = TypeVar("T")
 
@@ -157,4 +118,3 @@ class ThreadSafeDeque(Generic[T]):
     def __len__(self) -> int:
         with self._mutex:
             return len(self._deque)
-
