@@ -55,7 +55,7 @@ def test_unset_waiting_timeout(devent: Devent):
     result = devent.wait_unset(timeout=timeout)
     elapsed_time = time.monotonic() - start_time
 
-    assert result == False, f"wait_unset вернуло не False, а {result}"
+    assert result is False, f"wait_unset вернуло не False, а {result}"
 
     assert elapsed_time == pytest.approx(timeout, rel=0.1), (
         f"Замереное время: {elapsed_time} не совпало с ожидаемым: {timeout}"
@@ -70,7 +70,7 @@ def test_set_waiting_timeout(devent: Devent):
     result = devent.wait_set(timeout=timeout)
     elapsed_time = time.monotonic() - start_time
 
-    assert result == False, f"wait_set вернуло не False, а {result}"
+    assert result is False, f"wait_set вернуло не False, а {result}"
 
     assert elapsed_time == pytest.approx(timeout, rel=0.1), (
         f"Замереное время: {elapsed_time} не совпало с ожидаемым: {timeout}"
