@@ -1,0 +1,28 @@
+import pytest
+
+from tsdeque.timer import Timer
+from tests.utils import accurate_sleep
+
+
+@pytest.fixture
+def half_second_timer() -> Timer:
+    return Timer(0.5)
+
+
+def test_measuring_time_before_timeout(half_second_timer: Timer):
+    period = 0.2
+
+    accurate_sleep(period)
+
+    time_left_measured = half_second_timer.get_spend()
+    time_left_calculated = 0.5 - period
+
+    assert time_left_calculated == pytest.approx(time_left_measured, rel=0.1), (
+        f"Ожидаемый остаток времени: {time_left_calculated}, не совпал с полученым: {time_left_measured}"
+    )
+
+
+def test_measuring_time_after_timeout(half_second_timer: Timer):
+    accurate_sleep(0.6)
+
+    assert half_second_timer.get_spend() == 0
