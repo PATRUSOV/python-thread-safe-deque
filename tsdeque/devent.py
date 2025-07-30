@@ -10,7 +10,8 @@ class Devent:
         self.unset()
 
     def is_set(self) -> bool:
-        return self._set_event.is_set()
+        with self._mutex:
+            return self._set_event.is_set()
 
     def set(self) -> None:
         with self._mutex:
@@ -23,9 +24,7 @@ class Devent:
             self._unset_event.set()
 
     def wait_set(self, timeout: Optional[float] = None) -> bool:
-        with self._mutex:
-            return self._set_event.wait(timeout)
+        return self._set_event.wait(timeout)
 
     def wait_unset(self, timeout: Optional[float] = None) -> bool:
-        with self._mutex:
-            return self._unset_event.wait(timeout)
+        return self._unset_event.wait(timeout)
