@@ -1,6 +1,6 @@
 from collections import deque
 from threading import Lock, Event
-from typing import Generic, TypeVar, Deque, TypeAlias, Optional
+from typing import Generic, TypeVar, Deque, Optional
 from time import perf_counter
 
 
@@ -73,7 +73,7 @@ class ThreadSafeDeque(Generic[T]):
 
         self._empty_event.set()
 
-    def append(self, item: T, timeout: Optional[float]) -> None:
+    def put(self, item: T, timeout: Optional[float] = None) -> None:
         timer = Timer(timeout) if timeout is not None else None
 
         while True:
@@ -90,7 +90,7 @@ class ThreadSafeDeque(Generic[T]):
                     if self._limitation and self._tasks_counter >= self._max_tasks:
                         self._full_event.set()
 
-    def lappend(self, item: T, timeout: Optional[float]) -> None:
+    def lput(self, item: T, timeout: Optional[float] = None) -> None:
         timer = Timer(timeout) if timeout is not None else None
 
         while True:
@@ -108,7 +108,7 @@ class ThreadSafeDeque(Generic[T]):
                     if self._limitation and self._tasks_counter >= self._max_tasks:
                         self._full_event.set()
 
-    def pop(self, timeout: Optional[float]) -> T:
+    def get(self, timeout: Optional[float] = None) -> T:
         timer = Timer(timeout) if timeout is not None else None
 
         while True:
@@ -122,7 +122,7 @@ class ThreadSafeDeque(Generic[T]):
                     item = self._deque.pop()
                     return item
 
-    def lpop(self, timeout: Optional[float]) -> T:
+    def lget(self, timeout: Optional[float] = None) -> T:
         timer = Timer(timeout) if timeout is not None else None
 
         while True:
@@ -158,7 +158,3 @@ class ThreadSafeDeque(Generic[T]):
         with self._mutex:
             return len(self._deque)
 
-
-TSDeque: TypeAlias = ThreadSafeDeque
-
-__all__ = ["TSDeque", "ThreadSafeDeque"]
