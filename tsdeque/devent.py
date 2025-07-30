@@ -9,7 +9,7 @@ class Devent:
         self._mutex = Lock()
         self.unset()
 
-    def is_set(self):
+    def is_set(self) -> bool:
         return self._set_event.is_set()
 
     def set(self) -> None:
