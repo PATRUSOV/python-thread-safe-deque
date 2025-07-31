@@ -1,15 +1,9 @@
 import time
 import pytest
-import logging
 from threading import Thread
 
 from tsdeque.core import ThreadSafeDeque
-
-logger = logging.getLogger()
-
-
-def unlimited_deque() -> ThreadSafeDeque:
-    return ThreadSafeDeque()
+from tsdeque.exceptions import NoActiveTaskError
 
 
 @pytest.fixture
@@ -77,7 +71,7 @@ def test_producent_and_consument(three_elemet_deque: ThreadSafeDeque):
 
 
 def test_start_state(three_elemet_deque: ThreadSafeDeque):
-    assert three_elemet_deque.active_tasks() == 0
+    assert three_elemet_deque.tasks_count() == 0
     assert len(three_elemet_deque) == 0
 
     # проверка что join срабатывает сразу
@@ -92,11 +86,11 @@ def test_task_counting(three_elemet_deque: ThreadSafeDeque):
     three_elemet_deque.put(object())
     three_elemet_deque.get()
 
-    assert three_elemet_deque.active_tasks() == 1
+    assert three_elemet_deque.tasks_count() == 1
     assert len(three_elemet_deque) == 0
 
     three_elemet_deque.task_done()
-    assert three_elemet_deque.active_tasks() == 0
+    assert three_elemet_deque.tasks_count() == 0
 
 
 def test_join_timeout(three_elemet_deque: ThreadSafeDeque):
@@ -109,3 +103,33 @@ def test_join_timeout(three_elemet_deque: ThreadSafeDeque):
     elapsed_time = time.monotonic() - start_time
 
     assert timeout == pytest.approx(elapsed_time, rel=0.1)
+
+
+def test_clear(three_elemet_deque: ThreadSafeDeque):
+    three_elemet_deque.put(object())
+
+    assert three_elemet_deque.tasks_count() == 1
+    assert len(three_elemet_deque) == 1
+
+    three_elemet_deque.clear()
+
+    assert three_elemet_deque.tasks_count() == 0
+    assert len(three_elemet_deque) == 0
+
+
+def test_cleat_with_unfinished_task(three_elemet_deque: ThreadSafeDeque):
+    three_elemet_deque.put(object())
+    three_elemet_deque.get()
+
+    assert three_elemet_deque.tasks_count() == 1
+
+    three_elemet_deque.clear()
+
+    assert three_elemet_deque.tasks_count() == 1
+
+
+def test_task_done_with_empty_deque(three_elemet_deque: ThreadSafeDeque):
+    assert three_elemet_deque.tasks_count() == 0
+
+    with pytest.raises(NoActiveTaskError):
+        three_elemet_deque.task_done()
