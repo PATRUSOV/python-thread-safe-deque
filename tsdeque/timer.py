@@ -10,3 +10,8 @@ class Timer:
         elapsed = time.perf_counter() - self._start
         remainder = max(0, self._period - elapsed)
         return remainder
+
+
+class NullTimer:
+    def get_spend(self) -> None:
+        return None
