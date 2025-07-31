@@ -2,8 +2,8 @@ from collections import deque
 from threading import Lock
 from typing import Generic, TypeVar, Deque, Optional
 
+import tsdeque.timer as t
 from tsdeque.devent import Devent
-from tsdeque.timer import Timer
 
 T = TypeVar("T")
 
@@ -14,6 +14,26 @@ T = TypeVar("T")
 # +Убрать дублирование кода
 
 
+class Counter:
+    def __init__(self) -> None:
+        self._value = 0
+
+    def incr(self) -> None:
+        self._value += 1
+
+    def decr(self) -> None:
+        self._value -= 1
+
+    def reset(self) -> None:
+        self._value = 0
+
+    def is_zero(self) -> bool:
+        return self._value == 0
+
+    def value(self) -> int:
+        return self._value
+
+
 class ThreadSafeDeque(Generic[T]):
     """
     Потокобезопасная, двухсторонняя очредь.
@@ -21,86 +41,100 @@ class ThreadSafeDeque(Generic[T]):
 
     def __init__(self, maxsize: int = 0):
         self._deque: Deque[T] = deque()
+        self._tasks_counter = Counter()
+
         self._mutex = Lock()
         self._empty_event = Devent()
-        self._tasks_counter = 0
         self._full_event = Devent()
 
         if maxsize < 0:
             raise ValueError("Размер очереди не может быть отрицательным.")
 
+        self._empty_event.set()
+
         self._max_tasks = maxsize
         self._limitation = self._max_tasks > 0
 
-        self._empty_event.set()
+    def _base_put(self, item: T, timeout: Optional[float], left: bool) -> None:
+        timer = t.get_timer(timeout)
+
+        while True:
+            wait_time = timer.get_spend()
+            if not self._full_event.wait_unset(wait_time):
+                raise TimeoutError("Установленный временной лимит вышел.")
+
+            with self._mutex:
+                if not self._full_event.is_set():
+                    if left:
+                        self._deque.appendleft(item)
+                    else:
+                        self._deque.append(item)
+                    self._tasks_counter.incr()
+                    self._empty_event.unset()
+
+                    if (
+                        self._limitation
+                        and self._tasks_counter.value() >= self._max_tasks
+                    ):
+                        self._full_event.set()
 
     def put(self, item: T, timeout: Optional[float] = None) -> None:
-        timer = Timer(timeout) if timeout is not None else None
+        self._base_put(
+            item=item,
+            timeout=timeout,
+            left=False,
+        )
+
+    def putleft(self, item: T, timeout: Optional[float] = None) -> None:
+        self._base_put(
+            item=item,
+            timeout=timeout,
+            left=True,
+        )
+
+    def _base_get(self, timeout: Optional[float], left: bool) -> T:
+        timer = t.get_timer(timeout)
 
         while True:
-            wait_time = timer.get_spend() if timer is not None else None
-            if not self._full_event.wait_unset(wait_time):
+            wait_time = timer.get_spend()
+
+            if not self._empty_event.wait_unset(wait_time):
                 raise TimeoutError("Установленный временной лимит вышел.")
 
             with self._mutex:
-                if not self._full_event.is_set():
-                    self._deque.append(item)
-                    self._tasks_counter += 1
-                    self._empty_event.unset()
+                if len(self._deque) > 0:
+                    if left:
+                        item = self._deque.popleft()
+                    else:
+                        item = self._deque.pop()
 
-                    if self._limitation and self._tasks_counter >= self._max_tasks:
+                    if (
+                        self._limitation
+                        and self._tasks_counter.value() >= self._max_tasks
+                    ):
                         self._full_event.set()
 
-    def lput(self, item: T, timeout: Optional[float] = None) -> None:
-        timer = Timer(timeout) if timeout is not None else None
+                    if len(self._deque) == 0:
+                        self._empty_event.set()
 
-        while True:
-            wait_time = timer.get_spend() if timer is not None else None
-
-            if not self._full_event.wait_unset(wait_time):
-                raise TimeoutError("Установленный временной лимит вышел.")
-
-            with self._mutex:
-                if not self._full_event.is_set():
-                    self._deque.appendleft(item)
-                    self._tasks_counter += 1
-                    self._empty_event.unset()
-
-                    if self._limitation and self._tasks_counter >= self._max_tasks:
-                        self._full_event.set()
+                    return item
 
     def get(self, timeout: Optional[float] = None) -> T:
-        timer = Timer(timeout) if timeout is not None else None
+        return self._base_get(
+            timeout=timeout,
+            left=False,
+        )
 
-        while True:
-            wait_time = timer.get_spend() if timer is not None else None
-
-            if not self._empty_event.wait_unset(wait_time):
-                raise TimeoutError("Установленный временной лимит вышел.")
-
-            with self._mutex:
-                if len(self._deque) > 0:
-                    item = self._deque.pop()
-                    return item
-
-    def lget(self, timeout: Optional[float] = None) -> T:
-        timer = Timer(timeout) if timeout is not None else None
-
-        while True:
-            wait_time = timer.get_spend() if timer is not None else None
-
-            if not self._empty_event.wait_unset(wait_time):
-                raise TimeoutError("Установленный временной лимит вышел.")
-
-            with self._mutex:
-                if len(self._deque) > 0:
-                    item = self._deque.popleft()
-                    return item
+    def getleft(self, timeout: Optional[float] = None) -> T:
+        return self._base_get(
+            timeout=timeout,
+            left=True,
+        )
 
     def clear(self) -> None:
         with self._mutex:
             self._deque.clear()
-            self._tasks_counter = 0
+            self._tasks_counter.reset()
             self._full_event.unset()
             self._empty_event.set()
 
@@ -109,11 +143,16 @@ class ThreadSafeDeque(Generic[T]):
 
     def task_done(self) -> None:
         with self._mutex:
-            if self._tasks_counter == 0:
+            if self._tasks_counter.is_zero():
                 raise ValueError("Все задачи уже выполнены.")
-            self._tasks_counter -= 1
-            if self._tasks_counter == 0:
+
+            self._tasks_counter.decr()
+            if self._tasks_counter.is_zero():
                 self._empty_event.set()
+
+    def active_tasks(self) -> int:
+        with self._mutex:
+            return self._tasks_counter.value()
 
     def __len__(self) -> int:
         with self._mutex:
