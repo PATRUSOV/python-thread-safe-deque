@@ -5,6 +5,7 @@ from typing import Generic, TypeVar, Deque, Optional
 import tsdeque.timer as tmr
 from tsdeque.devent import Devent
 from tsdeque.counter import Counter
+from tsdeque.exceptions import NoActiveTaskError
 
 T = TypeVar("T")
 
@@ -120,7 +121,7 @@ class ThreadSafeDeque(Generic[T]):
     def task_done(self) -> None:
         with self._mutex:
             if self._tasks_counter.is_zero():
-                raise ValueError("Все задачи уже выполнены.")
+                raise NoActiveTaskError("Все задачи уже выполнены.")
 
             self._tasks_counter.decr()
             if self._tasks_counter.is_zero():
