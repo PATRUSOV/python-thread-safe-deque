@@ -126,7 +126,7 @@ class ThreadSafeDeque(Generic[T]):
             if self._tasks_counter.is_zero():
                 self._empty_event.set()
 
-    def active_tasks(self) -> int:
+    def tasks_count(self) -> int:
         with self._mutex:
             return self._tasks_counter.value()
 
