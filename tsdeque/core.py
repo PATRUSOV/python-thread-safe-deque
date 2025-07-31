@@ -4,34 +4,9 @@ from typing import Generic, TypeVar, Deque, Optional
 
 import tsdeque.timer as t
 from tsdeque.devent import Devent
+from tsdeque.counter import Counter
 
 T = TypeVar("T")
-
-# TODO: Добавить:
-# +Документацию
-# +Тесты
-# FIXME: Исправить:
-# +Убрать дублирование кода
-
-
-class Counter:
-    def __init__(self) -> None:
-        self._value = 0
-
-    def incr(self) -> None:
-        self._value += 1
-
-    def decr(self) -> None:
-        self._value -= 1
-
-    def reset(self) -> None:
-        self._value = 0
-
-    def is_zero(self) -> bool:
-        return self._value == 0
-
-    def value(self) -> int:
-        return self._value
 
 
 class ThreadSafeDeque(Generic[T]):
