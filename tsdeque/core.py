@@ -52,20 +52,7 @@ class ThreadSafeDeque(Generic[T]):
                         and self._tasks_counter.value() >= self._max_tasks
                     ):
                         self._full_event.set()
-
-    def put(self, item: T, timeout: Optional[float] = None) -> None:
-        self._base_put(
-            item=item,
-            timeout=timeout,
-            left=False,
-        )
-
-    def putleft(self, item: T, timeout: Optional[float] = None) -> None:
-        self._base_put(
-            item=item,
-            timeout=timeout,
-            left=True,
-        )
+                    break
 
     def _base_get(self, timeout: Optional[float], left: bool) -> T:
         timer = t.get_timer(timeout)
@@ -93,6 +80,20 @@ class ThreadSafeDeque(Generic[T]):
                         self._empty_event.set()
 
                     return item
+
+    def put(self, item: T, timeout: Optional[float] = None) -> None:
+        self._base_put(
+            item=item,
+            timeout=timeout,
+            left=False,
+        )
+
+    def putleft(self, item: T, timeout: Optional[float] = None) -> None:
+        self._base_put(
+            item=item,
+            timeout=timeout,
+            left=True,
+        )
 
     def get(self, timeout: Optional[float] = None) -> T:
         return self._base_get(
