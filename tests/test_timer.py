@@ -26,3 +26,9 @@ def test_measuring_time_after_timeout(half_second_timer: Timer):
     accurate_sleep(0.6)
 
     assert half_second_timer.get_spend() == 0
+
+
+def test_measuring_negative_time():
+    negative_timer = Timer(-1)
+
+    assert negative_timer.get_spend() == 0
