@@ -2,7 +2,7 @@ from collections import deque
 from threading import Lock
 from typing import Generic, TypeVar, Deque, Optional
 
-import tsdeque.timer as t
+import tsdeque.timer as tmr
 from tsdeque.devent import Devent
 from tsdeque.counter import Counter
 
@@ -31,7 +31,7 @@ class ThreadSafeDeque(Generic[T]):
         self._limitation = self._max_tasks > 0
 
     def _base_put(self, item: T, timeout: Optional[float], left: bool) -> None:
-        timer = t.get_timer(timeout)
+        timer = tmr.get_timer(timeout)
 
         while True:
             wait_time = timer.get_spend()
@@ -55,7 +55,7 @@ class ThreadSafeDeque(Generic[T]):
                     break
 
     def _base_get(self, timeout: Optional[float], left: bool) -> T:
-        timer = t.get_timer(timeout)
+        timer = tmr.get_timer(timeout)
 
         while True:
             wait_time = timer.get_spend()
