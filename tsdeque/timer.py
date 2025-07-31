@@ -1,4 +1,5 @@
 import time
+from typing import Optional, Union
 
 
 class Timer:
@@ -15,3 +16,10 @@ class Timer:
 class NullTimer:
     def get_spend(self) -> None:
         return None
+
+
+def get_timer(period: Optional[float]) -> Union[Timer, NullTimer]:
+    if period is None:
+        return NullTimer()
+    else:
+        return Timer(period)
