@@ -18,7 +18,7 @@ def test_measuring_time_before_timeout(half_second_timer: Timer):
     time_left_calculated = 0.5 - period
 
     assert time_left_calculated == pytest.approx(time_left_measured, rel=0.1), (
-        f"Ожидаемый остаток времени: {time_left_calculated}, не совпал с полученым: {time_left_measured}"
+        f"Expected remaining time: {time_left_calculated}, but got: {time_left_measured}"
     )
 
 
@@ -39,8 +39,8 @@ def test_getting_timer():
     standart_timer = get_timer(2)
 
     assert isinstance(null_timer, NullTimer), (
-        f"Ожидался {NullTimer.__name__}(), получен {null_timer}"
+        f"Expected {NullTimer.__name__}(), but got {null_timer}"
     )
     assert isinstance(standart_timer, Timer), (
-        f"Ожидался {Timer.__name__}(), получен {standart_timer}"
+        f"Expected {Timer.__name__}(), but got {standart_timer}"
     )

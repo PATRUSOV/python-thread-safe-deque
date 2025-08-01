@@ -77,7 +77,7 @@ def test_start_state(three_elemet_deque: ThreadSafeDeque):
     assert three_elemet_deque.tasks_count() == 0
     assert len(three_elemet_deque) == 0
 
-    # проверка что join срабатывает сразу
+    # check that join returns immediately
     start_time = time.monotonic()
     three_elemet_deque.join()
     elapsed_time = time.monotonic() - start_time
@@ -114,7 +114,7 @@ def test_join_with_unfinished_task(three_elemet_deque: ThreadSafeDeque):
 
     timeout = 0.2
 
-    # пока task_done() не вызван join() будет в заблокирвоаном состоянии - то есть ждать timeout.
+    # until task_done() is called, join() will remain blocked and wait for timeout
     start_time = time.monotonic()
     three_elemet_deque.join(timeout=timeout)
     elapsed_time = time.monotonic() - start_time
@@ -125,7 +125,7 @@ def test_join_with_unfinished_task(three_elemet_deque: ThreadSafeDeque):
 
     timeout = 1
 
-    # после выхова task_done разблокировак должна произайти моментально (точно быстрее таймаута)
+    # after calling task_done, join should unblock immediately (definitely faster than timeout)
     start_time = time.monotonic()
     three_elemet_deque.join(timeout=timeout)
     elapsed_time = time.monotonic() - start_time

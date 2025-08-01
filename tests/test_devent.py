@@ -28,7 +28,7 @@ def test_waiting_unset_state(devent: Devent):
     devent.unset()
 
     thread_waiter.join(timeout=0.2)
-    assert not thread_waiter.is_alive(), "unset_wait завис."
+    assert not thread_waiter.is_alive(), "unset_wait got stuck."
 
 
 def test_waiting_set_state(devent: Devent):
@@ -44,7 +44,7 @@ def test_waiting_set_state(devent: Devent):
     devent.set()
 
     thread_waiter.join(timeout=0.2)
-    assert not thread_waiter.is_alive(), "set_wait завис."
+    assert not thread_waiter.is_alive(), "set_wait got stuck."
 
 
 def test_unset_waiting_timeout(devent: Devent):
@@ -55,10 +55,10 @@ def test_unset_waiting_timeout(devent: Devent):
     result = devent.wait_unset(timeout=timeout)
     elapsed_time = time.monotonic() - start_time
 
-    assert result is False, f"wait_unset вернуло не False, а {result}"
+    assert result is False, f"wait_unset returned not False, but {result}"
 
     assert elapsed_time == pytest.approx(timeout, rel=0.1), (
-        f"Замереное время: {elapsed_time} не совпало с ожидаемым: {timeout}"
+        f"Measured time: {elapsed_time} did not match expected: {timeout}"
     )
 
 
@@ -70,8 +70,8 @@ def test_set_waiting_timeout(devent: Devent):
     result = devent.wait_set(timeout=timeout)
     elapsed_time = time.monotonic() - start_time
 
-    assert result is False, f"wait_set вернуло не False, а {result}"
+    assert result is False, f"wait_set returned not False, but {result}"
 
     assert elapsed_time == pytest.approx(timeout, rel=0.1), (
-        f"Замереное время: {elapsed_time} не совпало с ожидаемым: {timeout}"
+        f"Measured time: {elapsed_time} did not match expected: {timeout}"
     )
