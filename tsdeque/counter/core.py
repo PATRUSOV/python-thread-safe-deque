@@ -26,12 +26,12 @@ class Counter:
         self._set_value(value)
 
     def _set_value(self, value: int):
-        self._value = value
-
-        if self._value < self._min:
+        if value < self._min:
             raise LowThresholdError()
-        elif self._value > self._max:
+        elif value > self._max:
             raise HighThresholdError()
+
+        self._value = value
 
         if self._value == self._min:
             self._min_event.set()
