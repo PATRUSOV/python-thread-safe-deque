@@ -43,6 +43,9 @@ class Counter:
             self._max_event.unset()
             self._min_event.unset()
 
+    def set_value(self, value: int) -> None:
+        self._set_value(value)
+
     def incr(self) -> None:
         if self.is_max():
             raise HighThresholdError()
