@@ -2,10 +2,9 @@ import math
 
 from tsdeque.counter.threshold import Threshold
 from tsdeque.counter.exceptions import LowThresholdError, HighThresholdError
-from tsdeque.counter.nulldevent import _NULL_DEVENT
 
-_LOW_UNLIMITED_THRESHOLD = Threshold(value=-math.inf, event=_NULL_DEVENT)
-_HIHG_UNLIMITED_THRESHOLD = Threshold(value=math.inf, event=_NULL_DEVENT)
+_LOW_UNLIMITED_THRESHOLD = Threshold(value=-math.inf)
+_HIHG_UNLIMITED_THRESHOLD = Threshold(value=math.inf)
 
 
 class Counter:

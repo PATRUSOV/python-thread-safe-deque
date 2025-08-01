@@ -1,6 +1,7 @@
-from typing import TYPE_CHECKING
+from typing import Union, TYPE_CHECKING
 from dataclasses import dataclass
 
+from tsdeque.counter.nulldevent import _NULL_DEVENT
 
 if TYPE_CHECKING:
     from tsdeque.devent import Devent
@@ -10,4 +11,4 @@ if TYPE_CHECKING:
 @dataclass
 class Threshold:
     value: int
-    event: Devent | _NullDevent
+    event: Union[Devent, _NullDevent] = _NULL_DEVENT
