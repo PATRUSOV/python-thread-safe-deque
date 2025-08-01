@@ -1,0 +1,35 @@
+[project]
+name = "tsdeque"
+version = "1.0"
+description = "Thread-safe double-ended queue"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries",
+]
+authors = [{ name = "kotmarkot", email = "andrey.patrusov@gmail.com" }]
+keywords = ["deque", "thread-safe", "concurrency", "multithreading", "queue"]
+
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest >=7.0"]
+
+[project.urls]
+Homepage = "https://github.com/PATRUSOV/python-thread-safe-deque"
+
+[tool.setuptools.packages.find]
+include = ["tsdeque*"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
