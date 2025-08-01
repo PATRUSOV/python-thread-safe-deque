@@ -11,9 +11,9 @@ def three_elemet_deque() -> ThreadSafeDeque:
     return ThreadSafeDeque(3)
 
 
-@pytest.fixture
-def unlimited_deque() -> ThreadSafeDeque:
-    return ThreadSafeDeque()
+@pytest.fixture(params=[ThreadSafeDeque(), ThreadSafeDeque(3)])
+def unlim_and_lim_deq(request) -> ThreadSafeDeque:
+    return request.param
 
 
 def test_put_and_get(three_elemet_deque: ThreadSafeDeque):
@@ -25,12 +25,12 @@ def test_put_and_get(three_elemet_deque: ThreadSafeDeque):
     assert output is item
 
 
-def test_get_timeout(three_elemet_deque: ThreadSafeDeque):
+def test_get_timeout(unlim_and_lim_deq: ThreadSafeDeque):
     timeout = 0.2
 
     start_time = time.monotonic()
     with pytest.raises(TimeoutError):
-        three_elemet_deque.get(timeout=timeout)
+        unlim_and_lim_deq.get(timeout=timeout)
     elapsed_time = time.monotonic() - start_time
 
     assert elapsed_time == pytest.approx(timeout, rel=0.1)
@@ -50,11 +50,11 @@ def test_put_timeout(three_elemet_deque: ThreadSafeDeque):
     assert elapsed_time == pytest.approx(timeout, rel=0.1)
 
 
-def test_get_and_put_with_unlimited_deque(unlimited_deque: ThreadSafeDeque):
+def test_get_and_put_with_unlim_and_lim_deq(unlim_and_lim_deq: ThreadSafeDeque):
     obj = object()
 
-    unlimited_deque.put(obj)
-    result = unlimited_deque.get()
+    unlim_and_lim_deq.put(obj)
+    result = unlim_and_lim_deq.get()
 
     assert result is obj
 
