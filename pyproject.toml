@@ -1,6 +1,6 @@
 [project]
 name = "tsdeque"
-version = "1.0"
+version = "1.0.1"
 description = "Thread-safe double-ended queue"
 readme = "README.md"
 requires-python = ">=3.10"
