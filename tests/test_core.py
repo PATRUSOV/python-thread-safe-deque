@@ -11,6 +11,11 @@ def three_elemet_deque() -> ThreadSafeDeque:
     return ThreadSafeDeque(3)
 
 
+@pytest.fixture
+def unlimited_deque() -> ThreadSafeDeque:
+    return ThreadSafeDeque()
+
+
 def test_put_and_get(three_elemet_deque: ThreadSafeDeque):
     item = object()
 
@@ -43,6 +48,15 @@ def test_put_timeout(three_elemet_deque: ThreadSafeDeque):
     elapsed_time = time.monotonic() - start_time
 
     assert elapsed_time == pytest.approx(timeout, rel=0.1)
+
+
+def test_get_and_put_with_unlimited_deque(unlimited_deque: ThreadSafeDeque):
+    obj = object()
+
+    unlimited_deque.put(obj)
+    result = unlimited_deque.get()
+
+    assert result is obj
 
 
 def test_producent_and_consument(three_elemet_deque: ThreadSafeDeque):
