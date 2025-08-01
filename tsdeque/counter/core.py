@@ -11,14 +11,14 @@ class Counter:
     def __init__(
         self,
         value: int = 0,
-        low_treshold: Threshold = _LOW_UNLIMITED_THRESHOLD,
-        high_treshold: Threshold = _HIHG_UNLIMITED_THRESHOLD,
+        low_threshold: Threshold = _LOW_UNLIMITED_THRESHOLD,
+        high_threshold: Threshold = _HIHG_UNLIMITED_THRESHOLD,
     ) -> None:
-        self._min_event = low_treshold.event
-        self._max_event = high_treshold.event
+        self._min_event = low_threshold.event
+        self._max_event = high_threshold.event
 
-        self._min = low_treshold.value
-        self._max = high_treshold.value
+        self._min = low_threshold.value
+        self._max = high_threshold.value
 
         if not self._max > self._min:
             raise ValueError("Верхняя граница должна быть меньше нижней.")
