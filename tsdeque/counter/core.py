@@ -4,25 +4,22 @@ from tsdeque.counter.threshold import Threshold
 from tsdeque.counter.exceptions import LowThresholdError, HighThresholdError
 from tsdeque.counter.nulldevent import _NULL_DEVENT
 
+_LOW_UNLIMITED_THRESHOLD = Threshold(value=-math.inf, event=_NULL_DEVENT)
+_HIHG_UNLIMITED_THRESHOLD = Threshold(value=math.inf, event=_NULL_DEVENT)
+
 
 class Counter:
     def __init__(
         self,
         value: int = 0,
-        low_trashold: Threshold = Threshold(
-            value=-math.inf,
-            event=_NULL_DEVENT,
-        ),
-        high_trashold: Threshold = Threshold(
-            value=math.inf,
-            event=_NULL_DEVENT,
-        ),
+        low_treshold: Threshold = _LOW_UNLIMITED_THRESHOLD,
+        high_treshold: Threshold = _HIHG_UNLIMITED_THRESHOLD,
     ) -> None:
-        self._min_event = low_trashold.event
-        self._max_event = high_trashold.event
+        self._min_event = low_treshold.event
+        self._max_event = high_treshold.event
 
-        self._min = low_trashold.value
-        self._max = high_trashold.value
+        self._min = low_treshold.value
+        self._max = high_treshold.value
 
         if not self._max > self._min:
             raise ValueError("Верхняя граница должна быть меньше нижней.")
