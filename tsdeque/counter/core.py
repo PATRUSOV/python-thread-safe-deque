@@ -3,16 +3,16 @@ import math
 from tsdeque.counter.threshold import Threshold
 from tsdeque.counter.exceptions import LowThresholdError, HighThresholdError
 
-_LOW_UNLIMITED_THRESHOLD = Threshold(value=-math.inf)
-_HIHG_UNLIMITED_THRESHOLD = Threshold(value=math.inf)
+LOW_UNLIMITED_THRESHOLD = Threshold(value=-math.inf)
+HIGH_UNLIMITED_THRESHOLD = Threshold(value=math.inf)
 
 
 class Counter:
     def __init__(
         self,
         value: int = 0,
-        low_threshold: Threshold = _LOW_UNLIMITED_THRESHOLD,
-        high_threshold: Threshold = _HIHG_UNLIMITED_THRESHOLD,
+        low_threshold: Threshold = LOW_UNLIMITED_THRESHOLD,
+        high_threshold: Threshold = HIGH_UNLIMITED_THRESHOLD,
     ) -> None:
         self._min_event = low_threshold.event
         self._max_event = high_threshold.event
