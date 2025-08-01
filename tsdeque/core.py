@@ -65,27 +65,31 @@ class ThreadSafeDeque(Generic[T]):
         Raises:
             TimeoutError: If the timeout is reached while waiting for space to become available.
         """
-        timer = tmr.get_timer(timeout)
+        if self._limitation:
+            timer = tmr.get_timer(timeout)
 
         while True:
-            wait_time = timer.get_spend()
             if self._limitation:
+                wait_time = timer.get_spend()  # type: ignore
                 if not self._full_event.wait_unset(wait_time):
                     raise TimeoutError(
                         "The timeout has expired while waiting for available space."
                     )
 
             with self._mutex:
-                if not self._full_event.is_set():
-                    if left:
-                        self._deque.appendleft(item)
-                    else:
-                        self._deque.append(item)
+                if self._limitation:
+                    if self._full_event.is_set():
+                        continue
 
-                    self._tasks_counter.incr()
-                    if self._limitation:
-                        self._item_counter.incr()
-                    break
+                if left:
+                    self._deque.appendleft(item)
+                else:
+                    self._deque.append(item)
+
+                self._tasks_counter.incr()
+                if self._limitation:
+                    self._item_counter.incr()
+                break
 
     def _base_get(self, timeout: Optional[float], left: bool) -> T:
         """
