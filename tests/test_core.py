@@ -11,9 +11,9 @@ def three_elemet_deque() -> ThreadSafeDeque:
     return ThreadSafeDeque(3)
 
 
-@pytest.fixture(params=[ThreadSafeDeque(), ThreadSafeDeque(3)])
+@pytest.fixture(params=[lambda: ThreadSafeDeque(), lambda: ThreadSafeDeque(3)])
 def unlim_and_lim_deq(request) -> ThreadSafeDeque:
-    return request.param
+    return request.param()
 
 
 def test_put_and_get(three_elemet_deque: ThreadSafeDeque):
@@ -122,26 +122,26 @@ def test_join_timeout(three_elemet_deque: ThreadSafeDeque):
     assert timeout == pytest.approx(elapsed_time, rel=0.1)
 
 
-def test_join_with_unfinished_task(three_elemet_deque: ThreadSafeDeque):
-    three_elemet_deque.put(object())
-    three_elemet_deque.get()
+def test_join_with_unfinished_task(unlim_and_lim_deq: ThreadSafeDeque):
+    unlim_and_lim_deq.put(object())
+    unlim_and_lim_deq.get()
 
     timeout = 0.2
 
     # until task_done() is called, join() will remain blocked and wait for timeout
     start_time = time.monotonic()
-    three_elemet_deque.join(timeout=timeout)
+    unlim_and_lim_deq.join(timeout=timeout)
     elapsed_time = time.monotonic() - start_time
 
     assert timeout == pytest.approx(elapsed_time, rel=0.1)
 
-    three_elemet_deque.task_done()
+    unlim_and_lim_deq.task_done()
 
     timeout = 1
 
     # after calling task_done, join should unblock immediately (definitely faster than timeout)
     start_time = time.monotonic()
-    three_elemet_deque.join(timeout=timeout)
+    unlim_and_lim_deq.join(timeout=timeout)
     elapsed_time = time.monotonic() - start_time
 
     assert elapsed_time < 0.1
