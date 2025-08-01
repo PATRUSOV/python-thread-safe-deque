@@ -1,0 +1,6 @@
+class _NullDevent:
+    def set(self) -> None: ...
+    def unset(self) -> None: ...
+
+
+_NULL_DEVENT = _NullDevent()
