@@ -56,12 +56,15 @@ def test_producent_and_consument(three_elemet_deque: ThreadSafeDeque):
         for obj in objects:
             output = three_elemet_deque.getleft()
             assert obj is output
+            three_elemet_deque.task_done()
 
     producent_thread = Thread(target=producent)
     consument_thread = Thread(target=consument)
 
     producent_thread.start()
     consument_thread.start()
+
+    three_elemet_deque.join()
 
     producent_thread.join()
     consument_thread.join()
@@ -105,6 +108,31 @@ def test_join_timeout(three_elemet_deque: ThreadSafeDeque):
     assert timeout == pytest.approx(elapsed_time, rel=0.1)
 
 
+def test_join_with_unfinished_task(three_elemet_deque: ThreadSafeDeque):
+    three_elemet_deque.put(object())
+    three_elemet_deque.get()
+
+    timeout = 0.2
+
+    # пока task_done() не вызван join() будет в заблокирвоаном состоянии - то есть ждать timeout.
+    start_time = time.monotonic()
+    three_elemet_deque.join(timeout=timeout)
+    elapsed_time = time.monotonic() - start_time
+
+    assert timeout == pytest.approx(elapsed_time, rel=0.1)
+
+    three_elemet_deque.task_done()
+
+    timeout = 1
+
+    # после выхова task_done разблокировак должна произайти моментально (точно быстрее таймаута)
+    start_time = time.monotonic()
+    three_elemet_deque.join(timeout=timeout)
+    elapsed_time = time.monotonic() - start_time
+
+    assert elapsed_time < 0.1
+
+
 def test_clear(three_elemet_deque: ThreadSafeDeque):
     three_elemet_deque.put(object())
 
@@ -117,7 +145,7 @@ def test_clear(three_elemet_deque: ThreadSafeDeque):
     assert len(three_elemet_deque) == 0
 
 
-def test_cleat_with_unfinished_task(three_elemet_deque: ThreadSafeDeque):
+def test_clear_with_unfinished_task(three_elemet_deque: ThreadSafeDeque):
     three_elemet_deque.put(object())
     three_elemet_deque.get()
 
