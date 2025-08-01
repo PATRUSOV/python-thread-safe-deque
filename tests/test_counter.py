@@ -136,3 +136,39 @@ def test_is_max():
 
     counter.incr()
     assert counter.is_max()
+
+
+def test_set_value():
+    counter = Counter()
+    counter.set_value(3)
+    assert counter.value() == 3
+
+
+def test_set_value_exceeding_the_min_threshold():
+    counter = Counter(low_threshold=Threshold(-3))
+    with pytest.raises(LowThresholdError):
+        counter.set_value(-4)
+
+
+def test_set_value_exceeding_the_max_threshold():
+    counter = Counter(high_threshold=Threshold(3))
+    with pytest.raises(HighThresholdError):
+        counter.set_value(4)
+
+
+def test_set_value_triggers_low_threshold_event():
+    low_event = Devent()
+    counter = Counter(low_threshold=Threshold(-3, low_event))
+    assert not low_event.is_set()
+
+    counter.set_value(-3)
+    assert low_event.is_set()
+
+
+def test_set_value_triggers_high_threshold_event():
+    high_event = Devent()
+    counter = Counter(high_threshold=Threshold(3, high_event))
+    assert not high_event.is_set()
+
+    counter.set_value(3)
+    assert high_event.is_set()
